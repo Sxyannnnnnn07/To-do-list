@@ -901,19 +901,21 @@ body {
 }
 
 .modal-content.mobile-sheet {
-  width: 100%;
-  max-width: 500px;
+  width: calc(100% - 32px);
+  max-width: 440px;
   background: var(--bg-card-solid);
   border-radius: var(--radius-lg);
-  padding: 26px;
+  padding: 22px 18px;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: var(--shadow-lg);
   transform: scale(0.95);
   opacity: 0;
   transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  margin: 16px;
+  margin: auto;
+  box-sizing: border-box;
 }
 
 .modal-overlay.active .modal-content.mobile-sheet {
@@ -925,12 +927,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 16px;
+  padding-bottom: 14px;
   border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
 .modal-header h3 {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -956,20 +958,22 @@ body {
 }
 
 .modal-body {
-  padding-top: 18px;
+  padding-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group label {
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -982,13 +986,16 @@ body {
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 13px 16px;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 11px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid rgba(0,0,0,0.12);
   background: var(--bg-app);
   color: var(--text-primary);
   font-family: var(--font-main);
-  font-size: 0.93rem;
+  font-size: 0.88rem;
   outline: none;
   transition: all 0.25s ease;
 }
@@ -1003,17 +1010,37 @@ body {
 
 .form-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .form-row .col {
   flex: 1;
   min-width: 0;
+  width: 50%;
+  box-sizing: border-box;
+}
+
+.form-group input[type="date"],
+.form-group input[type="time"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 10px 6px;
+  font-size: 0.82rem;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-app);
 }
 
 .priority-options {
   display: flex;
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .priority-radio {
@@ -1054,8 +1081,10 @@ body {
 .modal-footer {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
-  margin-top: 14px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+  width: 100%;
 }
 
 .btn {
