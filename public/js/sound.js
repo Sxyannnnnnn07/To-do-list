@@ -122,29 +122,47 @@ class SoundEngine {
     osc.stop(now + 0.12);
   }
 
-  // 4. Cute Minimalist Tap Sound (Cute soft bloop for UI buttons, tabs, profile clicks)
+  // 4. Cute Minimalist Tap Sound (Crisp, audible cute pop for UI buttons, tabs, profile clicks)
   playTapSound() {
     if (!this.enabled) return;
     this.initContext();
     if (!this.audioCtx) return;
 
     const now = this.audioCtx.currentTime;
-    const osc = this.audioCtx.createOscillator();
-    const gain = this.audioCtx.createGain();
+    
+    // Main Tone (Sine wave for cute round pop)
+    const osc1 = this.audioCtx.createOscillator();
+    const gain1 = this.audioCtx.createGain();
 
-    osc.type = 'sine';
-    // Frequency sweeps quickly from 560Hz to 840Hz (cute bloop)
-    osc.frequency.setValueAtTime(560, now);
-    osc.frequency.exponentialRampToValueAtTime(840, now + 0.045);
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(580, now);
+    osc1.frequency.exponentialRampToValueAtTime(920, now + 0.055);
 
-    gain.gain.setValueAtTime(0.09, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+    gain1.gain.setValueAtTime(0.38, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
 
-    osc.connect(gain);
-    gain.connect(this.audioCtx.destination);
+    osc1.connect(gain1);
+    gain1.connect(this.audioCtx.destination);
 
-    osc.start(now);
-    osc.stop(now + 0.045);
+    osc1.start(now);
+    osc1.stop(now + 0.055);
+
+    // Crisp Harmonic Accent (Triangle wave for clear audibility)
+    const osc2 = this.audioCtx.createOscillator();
+    const gain2 = this.audioCtx.createGain();
+
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(1160, now);
+    osc2.frequency.exponentialRampToValueAtTime(1840, now + 0.04);
+
+    gain2.gain.setValueAtTime(0.18, now);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+    osc2.connect(gain2);
+    gain2.connect(this.audioCtx.destination);
+
+    osc2.start(now);
+    osc2.stop(now + 0.04);
   }
 }
 
