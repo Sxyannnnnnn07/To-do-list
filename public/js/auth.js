@@ -279,38 +279,74 @@ class AuthManager {
     document.getElementById('profileRemaining').textContent = remaining;
     document.getElementById('profileTotal').textContent = total;
 
-    // On-time percentage (completed tasks that were completed before/on due date)
-    let onTimePercent = 0;
-    if (completed > 0) {
-      const onTimeTasks = tasks.filter(t => {
-        if (t.status !== 'completed' || !t.dueDate) return false;
+    // On-time vs Late percentage calculation for completed tasks
+    const completedTasks = tasks.filter(t => t.status === 'completed');
+    const completedCount = completedTasks.length;
+
+    let onTimeCount = 0;
+    let lateCount = 0;
+
+    completedTasks.forEach(t => {
+      if (!t.dueDate) {
+        onTimeCount++;
+      } else {
         const due = new Date(t.dueDate + (t.dueTime ? 'T' + t.dueTime : 'T23:59:59'));
         const completedAt = t.completedAt ? new Date(t.completedAt) : new Date();
-        return completedAt <= due;
-      }).length;
-      onTimePercent = Math.round((onTimeTasks / completed) * 100);
-    } else if (total === 0) {
-      onTimePercent = 0;
+        if (completedAt <= due) {
+          onTimeCount++;
+        } else {
+          lateCount++;
+        }
+      }
+    });
+
+    let onTimePercent = 0;
+    let latePercent = 0;
+
+    if (completedCount > 0) {
+      onTimePercent = Math.round((onTimeCount / completedCount) * 100);
+      latePercent = 100 - onTimePercent;
     }
 
-    // Update ring
-    const circumference = 2 * Math.PI * 60; // r=60
-    const ringFill = document.getElementById('profileRingFill');
-    const offset = circumference - (onTimePercent / 100) * circumference;
-    
-    // Reset first for animation
-    ringFill.style.strokeDashoffset = circumference;
+    // Update legend counters & text
     document.getElementById('profileRingPercent').textContent = onTimePercent + '%';
+    const greenPercentEl = document.getElementById('profileGreenPercent');
+    const greenCountEl = document.getElementById('profileGreenCount');
+    const redPercentEl = document.getElementById('profileRedPercent');
+    const redCountEl = document.getElementById('profileRedCount');
+
+    if (greenPercentEl) greenPercentEl.textContent = onTimePercent + '%';
+    if (greenCountEl) greenCountEl.textContent = onTimeCount;
+    if (redPercentEl) redPercentEl.textContent = latePercent + '%';
+    if (redCountEl) redCountEl.textContent = lateCount;
+
+    // Update ring SVG strokes
+    const circumference = 2 * Math.PI * 60; // r=60 (approx 376.99)
+    const ringOnTime = document.getElementById('profileRingOnTime');
+    const ringLate = document.getElementById('profileRingLate');
+
+    if (ringOnTime && ringLate) {
+      if (completedCount === 0) {
+        ringOnTime.style.strokeDashoffset = circumference;
+        ringLate.style.strokeDashoffset = circumference;
+      } else {
+        const onTimeOffset = circumference - (onTimePercent / 100) * circumference;
+        const lateOffset = lateCount > 0 ? 0 : circumference;
+
+        ringLate.style.strokeDashoffset = circumference;
+        ringOnTime.style.strokeDashoffset = circumference;
+
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            ringLate.style.strokeDashoffset = lateOffset;
+            ringOnTime.style.strokeDashoffset = onTimeOffset;
+          }, 100);
+        });
+      }
+    }
 
     // Show modal
     profileModal.classList.add('active');
-
-    // Animate ring after small delay
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        ringFill.style.strokeDashoffset = offset;
-      }, 100);
-    });
 
     // Interactive Avatar Drawer Toggle & Selection
     const profileAvatarWrapper = document.getElementById('profileAvatarWrapper');

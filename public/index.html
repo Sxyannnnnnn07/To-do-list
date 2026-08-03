@@ -515,14 +515,27 @@
         <div class="profile-ring-container">
           <svg class="profile-ring" width="140" height="140" viewBox="0 0 140 140">
             <circle class="ring-bg" cx="70" cy="70" r="60" fill="none" stroke-width="10"/>
-            <circle class="ring-fill" id="profileRingFill" cx="70" cy="70" r="60" fill="none" stroke-width="10" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+            <circle class="ring-fill-late" id="profileRingLate" cx="70" cy="70" r="60" fill="none" stroke="#ef4444" stroke-width="10" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+            <circle class="ring-fill-ontime" id="profileRingOnTime" cx="70" cy="70" r="60" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round" transform="rotate(-90 70 70)"/>
           </svg>
           <div class="profile-ring-text">
             <span class="ring-percent" id="profileRingPercent">0%</span>
-            <span class="ring-sublabel">ส่งงาน</span>
+            <span class="ring-sublabel">ส่งตรงเวลา</span>
           </div>
         </div>
-        <div class="profile-progress-label">อัตราส่งงานตรงกำหนด</div>
+        <div class="profile-progress-label">สัดส่วนส่งงานตรงเวลาเทียบกับส่งสาย</div>
+
+        <!-- Legend key for Green (On-time) and Red (Late) -->
+        <div class="profile-ring-legend">
+          <div class="legend-item legend-green">
+            <span class="legend-dot green-dot"></span>
+            <span>ส่งตรงเวลา: <strong id="profileGreenPercent">0%</strong> (<span id="profileGreenCount">0</span>)</span>
+          </div>
+          <div class="legend-item legend-red">
+            <span class="legend-dot red-dot"></span>
+            <span>ส่งสาย: <strong id="profileRedPercent">0%</strong> (<span id="profileRedCount">0</span>)</span>
+          </div>
+        </div>
       </div>
 
       <!-- Account Link Section (Email & Google Binding for existing users) -->

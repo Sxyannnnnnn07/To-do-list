@@ -1545,14 +1545,66 @@ body {
 }
 
 .ring-bg {
-  stroke: rgba(124, 58, 237, 0.1);
+  stroke: rgba(255, 255, 255, 0.08);
 }
 
-.ring-fill {
-  stroke: var(--accent-primary);
+.ring-fill-late {
+  stroke: #ef4444;
   stroke-dasharray: 376.99;
   stroke-dashoffset: 376.99;
   transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ring-fill-ontime {
+  stroke: #10b981;
+  stroke-dasharray: 376.99;
+  stroke-dashoffset: 376.99;
+  transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-ring-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px 14px;
+  border-radius: var(--radius-pill, 20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.green-dot {
+  background-color: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.red-dot {
+  background-color: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+.legend-green strong {
+  color: #10b981;
+}
+
+.legend-red strong {
+  color: #ef4444;
 }
 
 .profile-ring-text {
