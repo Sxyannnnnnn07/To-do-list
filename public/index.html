@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1E1B4B">
+  <meta name="description" content="To Do List - แอปพลิเคชันจดและจัดการการบ้านบนมือถือ ดีไซน์พรีเมียม สบายตา จัดลำดับความสำคัญได้ง่ายๆ">
+  <title>To Do List - แอปจัดการการบ้าน</title>
+  
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/jpeg" href="icons/logo_v3.jpg">
+  <link rel="apple-touch-icon" href="icons/logo_v3.jpg">
+
+  <!-- Google Fonts: Prompt (Thai Minimalist Loopless Font) & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Full Screen Auth Landing Page (Shown when logged out) -->
+  <div id="authLandingScreen" class="auth-landing-screen">
+    <div class="landing-card">
+      <div class="landing-header">
+        <div class="landing-logo-wrapper">
+          <img src="icons/logo_v3.jpg" alt="Logo" class="landing-logo">
+        </div>
+        <h1 class="landing-title">To Do List</h1>
+        <p class="landing-subtitle">วางแผนการบ้านอย่างโปร จัดลำดับความสำคัญได้ง่ายๆ</p>
+      </div>
+
+      <!-- Landing Navigation Tabs -->
+      <div class="landing-tabs">
+        <button class="landing-tab active" id="landingTabLogin">เข้าสู่ระบบ / สลับบัญชี</button>
+        <button class="landing-tab" id="landingTabRegister">สมัครสมาชิกใหม่</button>
+      </div>
+
+      <!-- Landing Content 1: Account Cards & Login -->
+      <div id="landingLoginSection" class="landing-section">
+        <div class="landing-user-group">
+          <label class="landing-section-label">เลือกบัญชีที่มีอยู่แล้วเพื่อเข้าใช้งาน:</label>
+          <div class="user-cards-grid" id="landingUserCardsGrid">
+            <!-- Dynamic User Cards -->
+          </div>
+        </div>
+
+        <div class="auth-divider">
+          <span>หรือเข้าสู่ระบบด้วยชื่อผู้ใช้</span>
+        </div>
+
+        <form id="landingLoginForm" class="auth-form" autocomplete="off">
+          <div class="form-group">
+            <label for="landingLoginUsername">ชื่อผู้ใช้ (Username)</label>
+            <input type="text" id="landingLoginUsername" placeholder="เช่น demo หรือ sxynn" required autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="landingLoginPassword">รหัสผ่าน</label>
+            <input type="password" id="landingLoginPassword" placeholder="กรอกรหัสผ่าน..." required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">เข้าสู่ระบบ</button>
+        </form>
+      </div>
+
+      <!-- Landing Content 2: Register -->
+      <div id="landingRegisterSection" class="landing-section hidden">
+        <form id="landingRegisterForm" class="auth-form" autocomplete="off">
+          <div class="form-group">
+            <label for="landingRegUsername">ชื่อผู้ใช้ (Username)</label>
+            <input type="text" id="landingRegUsername" placeholder="เช่น sxynn_student" required maxLength="20" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="landingRegDisplayName">ชื่อแสดงผล (Display Name)</label>
+            <input type="text" id="landingRegDisplayName" placeholder="เช่น Sxynn / เพื่อน A" required maxLength="30" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="landingRegPassword">รหัสผ่าน</label>
+            <input type="password" id="landingRegPassword" placeholder="ตั้งรหัสผ่านง่ายๆ..." required autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="landing-section-label">เลือกรูปอวตารประจำตัว:</label>
+            <div class="avatar-grid-picker" id="landingAvatarPicker">
+              <div class="avatar-picker-item active" data-avatar="icons/clean_avatar_boy.png?v=8">
+                <img src="icons/clean_avatar_boy.png?v=8" alt="Boy 1">
+              </div>
+              <div class="avatar-picker-item" data-avatar="icons/avatar_boy_curly.png?v=8">
+                <img src="icons/avatar_boy_curly.png?v=8" alt="Boy 2">
+              </div>
+              <div class="avatar-picker-item" data-avatar="icons/avatar_girl_straight.png?v=8">
+                <img src="icons/avatar_girl_straight.png?v=8" alt="Girl 1">
+              </div>
+              <div class="avatar-picker-item" data-avatar="icons/avatar_girl_short.png?v=8">
+                <img src="icons/avatar_girl_short.png?v=8" alt="Girl 2">
+              </div>
+              <div class="avatar-picker-item" data-avatar="icons/avatar_girl_ponytail.png?v=8">
+                <img src="icons/avatar_girl_ponytail.png?v=8" alt="Girl 3">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full mt-2">ยืนยันสมัครสมาชิกใหม่</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- App Shell Container -->
+  <div id="app" class="app-container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="user-profile-btn" id="userProfileBtn" title="จัดการบัญชีผู้ใช้">
+        <div class="avatar-icon" id="userAvatar">✏️</div>
+        <div class="user-meta">
+          <span class="user-greeting">สวัสดี,</span>
+          <span class="user-name" id="userNameDisplay">ผู้ใช้งาน</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="toggleSoundBtn" aria-label="เปิด/ปิดเสียง" title="เปิด/ปิดเสียงเอฟเฟกต์">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+        <button class="icon-btn" id="toggleThemeBtn" aria-label="สลับธีม" title="สลับธีม (สว่าง/มืด)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="icon-btn" id="openAuthBtn" aria-label="สลับผู้ใช้" title="สลับบัญชีผู้ใช้">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- App Title & Daily Progress Summary -->
+    <section class="progress-section">
+      <div class="brand-badge">
+        <img src="icons/logo_v3.jpg" alt="Logo" class="brand-logo" id="brandLogo">
+        <h1 class="app-title">To Do List</h1>
+      </div>
+      <p class="subtitle">วางแผนการบ้านอย่างโปร จัดลำดับความสำคัญได้ง่ายๆ</p>
+
+      <div class="progress-card">
+        <div class="progress-info">
+          <div>
+            <span class="progress-label">ความคืบหน้าการบ้านวันนี้</span>
+            <h2 class="progress-status" id="progressStatusText">เสร็จแล้ว 0 จาก 0 งาน</h2>
+          </div>
+          <div class="progress-percentage" id="progressPercent">0%</div>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Control Bar: Search & Quick Filters -->
+    <section class="controls-section">
+      <div class="search-box">
+        <span class="search-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" id="searchInput" placeholder="ค้นหาการบ้าน หรือชื่อวิชา..." aria-label="ค้นหาการบ้าน" autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="clear-search" id="clearSearchBtn" hidden>✕</button>
+      </div>
+
+      <div class="filter-pills" id="filterPills">
+        <button class="pill active" data-filter="all">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+          ทั้งหมด <span class="badge-count" id="countAll">0</span>
+        </button>
+        <button class="pill" data-filter="pending">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ยังไม่เสร็จ <span class="badge-count" id="countPending">0</span>
+        </button>
+        <button class="pill" data-filter="urgent">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          ด่วนที่สุด <span class="badge-count" id="countUrgent">0</span>
+        </button>
+        <button class="pill" data-filter="completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          เสร็จแล้ว <span class="badge-count" id="countCompleted">0</span>
+        </button>
+      </div>
+
+      <!-- Sorting Select -->
+      <div class="sort-bar">
+        <label for="sortSelect">เรียงตาม:</label>
+        <select id="sortSelect">
+          <option value="smart">🎯 แนะนำ (ด่วน + สำคัญมากสุดขึ้นก่อน)</option>
+          <option value="dueDate">📅 วันกำหนดส่ง (เร็วสุดไปช้าสุด)</option>
+          <option value="priority">⚡ ระดับความสำคัญ (สูงไปต่ำ)</option>
+          <option value="createdAt">✨ งานที่เพิ่มล่าสุด</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Task List Container -->
+    <main class="task-list-section">
+      <div id="taskList" class="task-list">
+        <!-- Dynamic Task Cards Rendered by JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>ไม่มีงานการบ้านค้างอยู่!</h3>
+        <p>คุณเก่งมาก ทำงานเสร็จหมดแล้ว หรือกดปุ่ม <strong>+</strong> ด้านล่างเพื่อเพิ่มการบ้านใหม่</p>
+      </div>
+    </main>
+
+    <!-- Floating Action Button (FAB) -->
+    <button class="fab-btn" id="openAddModalBtn" aria-label="เพิ่มการบ้านใหม่" title="เพิ่มการบ้านใหม่">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+  </div>
+
+  <!-- Modal 1: Add / Edit Task Modal -->
+  <div class="modal-overlay" id="taskModal" tabindex="-1">
+    <div class="modal-content mobile-sheet">
+      <div class="modal-header">
+        <h3 id="modalTitle">เพิ่มงานการบ้านใหม่</h3>
+        <button class="close-btn" id="closeTaskModalBtn">✕</button>
+      </div>
+      <form id="taskForm" class="modal-body" autocomplete="off">
+        <input type="hidden" id="taskId">
+
+        <div class="form-group">
+          <label for="taskSubject">วิชา <span class="req">*</span></label>
+          <div class="subject-select-wrapper">
+            <select id="taskSubject" required>
+              <option value="">-- เลือกรายวิชาเริ่มต้น --</option>
+              <option value="คณิตศาสตร์">📐 คณิตศาสตร์</option>
+              <option value="วิทยาศาสตร์">🔬 วิทยาศาสตร์</option>
+              <option value="ภาษาอังกฤษ">🔤 ภาษาอังกฤษ</option>
+              <option value="ภาษาไทย">📖 ภาษาไทย</option>
+              <option value="สังคมศึกษา">🌍 สังคมศึกษา</option>
+              <option value="คอมพิวเตอร์">💻 คอมพิวเตอร์ / IT</option>
+              <option value="ศิลปะ/ดนตรี">🎨 ศิลปะ / ดนตรี</option>
+              <option value="custom">✏️ พิมพ์ชื่อวิชาเอง</option>
+            </select>
+          </div>
+          <div id="subjectInputGroup" class="mt-2 hidden">
+            <label for="customSubjectInput" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block;">ชื่อวิชาที่จะใช้ (สามารถพิมพ์แก้ไขชื่อได้ตามใจชอบ):</label>
+            <input type="text" id="customSubjectInput" placeholder="พิมพ์หรือปรับแก้ชื่อวิชา..." maxLength="30" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="taskTitle">หัวข้อการบ้าน / ชื่องาน <span class="req">*</span></label>
+          <input type="text" id="taskTitle" placeholder="เช่น ทำแบบฝึกหัดบทที่ 3 หน้า 45-48" required maxLength="100" autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+
+        <div class="form-group">
+          <label for="taskDetail">รายละเอียดเพิ่มเติม (ถ้ามี)</label>
+          <textarea id="taskDetail" rows="3" placeholder="เช่น อุปกรณ์ที่ต้องเตรียม, รายละเอียดกลุ่ม, ลิงก์ส่งงาน..." autocomplete="off"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col">
+            <label for="taskDueDate">กำหนดส่ง (วัน) <span class="req">*</span></label>
+            <input type="date" id="taskDueDate" required>
+          </div>
+          <div class="form-group col">
+            <label for="taskDueTime">เวลาส่ง</label>
+            <input type="time" id="taskDueTime" value="23:59">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>ระดับความสำคัญ <span class="req">*</span></label>
+          <div class="priority-options">
+            <label class="priority-radio priority-high">
+              <input type="radio" name="taskPriority" value="high" required>
+              <span>🔥 สูง (รีบทำก่อน)</span>
+            </label>
+            <label class="priority-radio priority-medium">
+              <input type="radio" name="taskPriority" value="medium" checked>
+              <span>⚡ ปานกลาง</span>
+            </label>
+            <label class="priority-radio priority-low">
+              <input type="radio" name="taskPriority" value="low">
+              <span>🍃 ต่ำ (ชิลๆ)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelTaskBtn">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary" id="saveTaskBtn">บันทึกการบ้าน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Multi-User Auth Modal (Login / Register / Switch) -->
+  <div class="modal-overlay" id="authModal" tabindex="-1">
+    <div class="modal-content mobile-sheet">
+      <div class="modal-header">
+        <h3 id="authModalTitle">ระบบสมาชิก & สลับผู้ใช้</h3>
+        <button class="close-btn" id="closeAuthModalBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- User Switcher List -->
+        <div id="userSwitchSection" class="user-switch-section">
+          <h4>เลือกบัญชีผู้ใช้ปัจจุบัน:</h4>
+          <div class="user-cards-grid" id="userCardsGrid">
+            <!-- Dynamic User Cards -->
+          </div>
+
+          <div class="auth-divider">
+            <span>หรือจัดการบัญชี</span>
+          </div>
+
+          <div class="auth-action-buttons">
+            <button class="btn btn-outline" id="showRegisterTabBtn">สมัครสมาชิกใหม่</button>
+            <button class="btn btn-outline-danger" id="logoutCurrentBtn">ออกจากระบบปัจจุบัน</button>
+          </div>
+        </div>
+
+        <!-- Register Form (Hidden by default) -->
+        <form id="registerForm" class="auth-form hidden" autocomplete="off">
+          <h4>สมัครสมาชิกใหม่</h4>
+          <div class="form-group">
+            <label for="regUsername">ชื่อผู้ใช้ (Username)</label>
+            <input type="text" id="regUsername" placeholder="เช่น sxynn_student" required maxLength="20" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="regDisplayName">ชื่อแสดงผล (Display Name)</label>
+            <input type="text" id="regDisplayName" placeholder="เช่น Sxynn / เพื่อน A" required maxLength="30" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="regPassword">รหัสผ่าน</label>
+            <input type="password" id="regPassword" placeholder="ตั้งรหัสผ่านง่ายๆ..." required autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="landing-section-label">เลือกรูปอวตารประจำตัว:</label>
+            <div class="avatar-grid-picker" id="modalAvatarPicker">
+              <div class="avatar-picker-item active" data-avatar="icons/clean_avatar_boy.png?v=8">
+                <img src="icons/clean_avatar_boy.png?v=8" alt="Boy 1">
+              </div>
+              <div class="avatar-picker-item" data-avatar="icons/avatar_boy_curly.png?v=8">
+                <img src="icons/avatar_boy_curly.png?v=8" alt="Boy 2">
+              </div>
+              <div class="avatar-picker-item" data-avatar="icons/avatar_girl_straight.png?v=8">
+                <img src="icons/avatar_girl_straight.png?v=8" alt="Girl 1">
+              </div>
+              <div class="avatar-picker-item" data-avatar="icons/avatar_girl_short.png?v=8">
+                <img src="icons/avatar_girl_short.png?v=8" alt="Girl 2">
+              </div>
+              <div class="avatar-picker-item" data-avatar="icons/avatar_girl_ponytail.png?v=8">
+                <img src="icons/avatar_girl_ponytail.png?v=8" alt="Girl 3">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="cancelRegisterBtn">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary">ยืนยันสมัครสมาชิก</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal-content mobile-sheet">
+      <div class="modal-header">
+        <h3>โปรไฟล์ของฉัน</h3>
+        <button class="close-btn" id="closeProfileModalBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="profile-card">
+        <div class="profile-avatar-wrapper" id="profileAvatarWrapper" title="คลิกเพื่อเปลี่ยนรูปโปรไฟล์">
+          <div class="profile-avatar-lg" id="profileAvatarLg"></div>
+          <div class="avatar-camera-badge" id="avatarCameraBadge" title="เปลี่ยนรูปโปรไฟล์">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+        </div>
+        <div class="profile-name" id="profileName">ผู้ใช้งาน</div>
+        <div class="profile-username" id="profileUsername">@username</div>
+      </div>
+
+      <!-- Change Avatar Drawer (Toggled by clicking avatar) -->
+      <div id="profileAvatarDrawer" class="profile-avatar-drawer hidden">
+        <div class="drawer-header">
+          <span class="drawer-title">เลือกรูปอวตารใหม่:</span>
+          <button type="button" class="btn-upload-photo" id="btnUploadPhoto">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            อัปโหลดรูปของตัวเอง
+          </button>
+          <input type="file" id="customPhotoFileInput" accept="image/*" class="hidden">
+        </div>
+        <div class="avatar-grid-picker" id="profileModalAvatarPicker">
+          <div class="avatar-picker-item" data-avatar="icons/clean_avatar_boy.png?v=8">
+            <img src="icons/clean_avatar_boy.png?v=8" alt="Boy 1">
+          </div>
+          <div class="avatar-picker-item" data-avatar="icons/avatar_boy_curly.png?v=8">
+            <img src="icons/avatar_boy_curly.png?v=8" alt="Boy 2">
+          </div>
+          <div class="avatar-picker-item" data-avatar="icons/avatar_girl_straight.png?v=8">
+            <img src="icons/avatar_girl_straight.png?v=8" alt="Girl 1">
+          </div>
+          <div class="avatar-picker-item" data-avatar="icons/avatar_girl_short.png?v=8">
+            <img src="icons/avatar_girl_short.png?v=8" alt="Girl 2">
+          </div>
+          <div class="avatar-picker-item" data-avatar="icons/avatar_girl_ponytail.png?v=8">
+            <img src="icons/avatar_girl_ponytail.png?v=8" alt="Girl 3">
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="profile-stats-grid">
+        <div class="profile-stat-item stat-completed">
+          <div class="stat-label">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>เสร็จแล้ว</span>
+          </div>
+          <div class="stat-number" id="profileCompleted">0</div>
+        </div>
+        <div class="profile-stat-item stat-remaining">
+          <div class="stat-label">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>ยังไม่เสร็จ</span>
+          </div>
+          <div class="stat-number" id="profileRemaining">0</div>
+        </div>
+        <div class="profile-stat-item stat-total">
+          <div class="stat-label">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>ทั้งหมด</span>
+          </div>
+          <div class="stat-number" id="profileTotal">0</div>
+        </div>
+      </div>
+
+      <!-- Circular Progress -->
+      <div class="profile-progress-section">
+        <div class="profile-ring-container">
+          <svg class="profile-ring" width="140" height="140" viewBox="0 0 140 140">
+            <circle class="ring-bg" cx="70" cy="70" r="60" fill="none" stroke-width="10"/>
+            <circle class="ring-fill" id="profileRingFill" cx="70" cy="70" r="60" fill="none" stroke-width="10" stroke-linecap="round" transform="rotate(-90 70 70)"/>
+          </svg>
+          <div class="profile-ring-text">
+            <span class="ring-percent" id="profileRingPercent">0%</span>
+            <span class="ring-sublabel">ส่งงาน</span>
+          </div>
+        </div>
+        <div class="profile-progress-label">อัตราส่งงานตรงกำหนด</div>
+      </div>
+
+      <!-- Delete Account Action -->
+      <div class="profile-actions">
+        <button class="btn btn-danger-outline" id="deleteAccountBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          ลบบัญชีผู้ใช้นี้
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
