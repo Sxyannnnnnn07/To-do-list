@@ -31,8 +31,13 @@ app.use((req, res, next) => {
 });
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Fall back to index.html
+// Fall back to index.html — always send fresh, no-cache to fix Safari iOS
 app.get('*', (req, res) => {
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
