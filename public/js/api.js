@@ -82,16 +82,36 @@ class ApiClient {
     return response.json();
   }
 
-  static async register(username, displayName, password, avatar) {
+  static async register(username, displayName, password, avatar, email = null) {
     const res = await this._fetch('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ username, displayName, password, avatar })
+      body: JSON.stringify({ username, displayName, password, avatar, email })
     });
     if (res.token) {
       this.token = res.token;
       this.setCurrentUser(res.user);
       this.saveAccount(username, password, res.token, res.user.displayName, res.user.avatar);
     }
+    return res;
+  }
+
+  static async loginWithGoogle(googleData) {
+    const data = await this._fetch('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(googleData)
+    });
+    this.token = data.token;
+    this.setCurrentUser(data.user);
+    this.saveAccount(data.user.username, '', data.token, data.user.displayName, data.user.avatar);
+    return data;
+  }
+
+  static async linkEmail(email, googleId = null) {
+    const res = await this._fetch('/auth/link-email', {
+      method: 'PUT',
+      body: JSON.stringify({ email, googleId })
+    });
+    this.setCurrentUser(res);
     return res;
   }
 

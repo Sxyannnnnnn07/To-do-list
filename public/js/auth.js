@@ -104,12 +104,13 @@ class AuthManager {
     if (this.registerForm) {
       this.registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('regUsername').value;
-        const displayName = document.getElementById('regDisplayName').value;
+        const username = document.getElementById('regUsername').value.trim();
+        const displayName = document.getElementById('regDisplayName').value.trim();
         const password = document.getElementById('regPassword').value;
+        const email = document.getElementById('regEmail') ? document.getElementById('regEmail').value.trim() : null;
 
         try {
-          await ApiClient.register(username, displayName, password, this.selectedModalAvatar);
+          await ApiClient.register(username, displayName, password, this.selectedModalAvatar, email);
           const loginData = await ApiClient.login(username, password);
           const newUser = loginData.user;
           this.updateUserUI(newUser);
@@ -121,7 +122,7 @@ class AuthManager {
           if (this.onUserChanged) this.onUserChanged(newUser);
           this.checkAuthState();
         } catch (err) {
-          alert(err.message);
+          alert('สมัครสมาชิกไม่สำเร็จ: ' + err.message);
         }
       });
     }
@@ -133,9 +134,10 @@ class AuthManager {
         const username = document.getElementById('landingRegUsername').value.trim();
         const displayName = document.getElementById('landingRegDisplayName').value.trim();
         const password = document.getElementById('landingRegPassword').value;
+        const email = document.getElementById('landingRegEmail') ? document.getElementById('landingRegEmail').value.trim() : null;
 
         try {
-          await ApiClient.register(username, displayName, password, this.selectedLandingAvatar);
+          await ApiClient.register(username, displayName, password, this.selectedLandingAvatar, email);
           const loginData = await ApiClient.login(username, password);
           this.landingRegisterForm.reset();
           this.checkAuthState();
@@ -145,6 +147,14 @@ class AuthManager {
         }
       });
     }
+
+    // Google Sign In Buttons Setup
+    document.querySelectorAll('.google-auth-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.triggerGoogleLogin();
+      });
+    });
 
     // Logout Button
     if (this.logoutCurrentBtn) {
@@ -287,6 +297,46 @@ class AuthManager {
     const profileModalAvatarPicker = document.getElementById('profileModalAvatarPicker');
     const btnUploadPhoto = document.getElementById('btnUploadPhoto');
     const customPhotoFileInput = document.getElementById('customPhotoFileInput');
+
+    // Email & Google Binding Section
+    const profileEmailInput = document.getElementById('profileEmailInput');
+    const emailBindingStatus = document.getElementById('emailBindingStatus');
+    const linkEmailForm = document.getElementById('linkEmailForm');
+
+    if (profileEmailInput) {
+      profileEmailInput.value = currentUser.email || '';
+    }
+
+    if (emailBindingStatus) {
+      if (currentUser.email) {
+        emailBindingStatus.innerHTML = `<span style="color: #10b981; font-weight: 600;">✓ ผูกอีเมลแล้ว: ${this.escapeHtml(currentUser.email)}</span> (เข้าสู่ระบบด้วย Google ได้ทันที)`;
+      } else {
+        emailBindingStatus.textContent = 'ผูกอีเมลเพื่อเข้าสู่ระบบด้วย Google กับบัญชีเดิมนี้ได้';
+      }
+    }
+
+    if (linkEmailForm) {
+      linkEmailForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const inputEmail = document.getElementById('profileEmailInput').value.trim();
+        if (!inputEmail) {
+          alert('กรุณากรอกอีเมลที่ต้องการผูก');
+          return;
+        }
+
+        try {
+          const updated = await ApiClient.linkEmail(inputEmail);
+          this.updateUserUI(updated);
+          if (this.onUserChanged) this.onUserChanged(updated);
+          if (emailBindingStatus) {
+            emailBindingStatus.innerHTML = `<span style="color: #10b981; font-weight: 600;">✓ ผูกอีเมลเรียบร้อย: ${this.escapeHtml(updated.email)}</span>`;
+          }
+          alert(`ผูกอีเมล (${updated.email}) กับบัญชีเดิมเรียบร้อยแล้ว!\nคราวหน้าสามารถกดล้อคอินด้วย Google ได้เลยครับ`);
+        } catch (err) {
+          alert('ผูกอีเมลไม่สำเร็จ: ' + err.message);
+        }
+      };
+    }
 
     if (profileAvatarDrawer) {
       profileAvatarDrawer.classList.add('hidden');
@@ -523,6 +573,39 @@ class AuthManager {
       }
     }
     if (this.userNameDisplay) this.userNameDisplay.textContent = user.displayName || user.username;
+  }
+
+  async triggerGoogleLogin() {
+    let email = prompt('กรุณากรอกอีเมล Google ของคุณ (เช่น student@gmail.com):');
+    if (!email) return;
+
+    email = email.trim().toLowerCase();
+    if (!email.includes('@')) {
+      alert('รูปแบบอีเมลไม่ถูกต้อง กรุณากรอกอีเมล เช่น name@gmail.com');
+      return;
+    }
+
+    const defaultName = email.split('@')[0];
+    const displayName = prompt(`ระบุชื่อแสดงผลสำหรับบัญชี Google นี้ (${defaultName}):`, defaultName) || defaultName;
+    const googleId = 'google_' + btoa(email).replace(/=/g, '');
+    const avatar = 'icons/clean_avatar_boy.png?v=8';
+
+    try {
+      const loginData = await ApiClient.loginWithGoogle({
+        googleId,
+        email,
+        displayName,
+        avatar
+      });
+
+      this.closeModal();
+      this.checkAuthState();
+      if (this.onUserChanged) this.onUserChanged(loginData.user);
+
+      alert(`เข้าสู่ระบบด้วย Google สำเร็จ!\nยินดีต้อนรับ ${loginData.user.displayName}`);
+    } catch (err) {
+      alert('เข้าสู่ระบบด้วย Google ไม่สำเร็จ: ' + err.message);
+    }
   }
 
   escapeHtml(str) {
