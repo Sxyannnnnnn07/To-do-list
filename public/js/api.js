@@ -82,6 +82,14 @@ class ApiClient {
     return response.json();
   }
 
+  static async getConfig() {
+    try {
+      return await this._fetch('/auth/config');
+    } catch (e) {
+      return { googleClientId: '' };
+    }
+  }
+
   static async register(username, displayName, password, avatar, email = null) {
     const res = await this._fetch('/auth/register', {
       method: 'POST',

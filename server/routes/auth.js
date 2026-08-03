@@ -54,10 +54,32 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// GET /config (Public config for frontend)
+router.get('/config', (req, res) => {
+  res.json({
+    googleClientId: process.env.GOOGLE_CLIENT_ID || ''
+  });
+});
+
 // POST /google (Google Auth & Auto-link matching email)
 router.post('/google', async (req, res) => {
   try {
-    const { googleId, email, displayName, avatar } = req.body;
+    let { credential, googleId, email, displayName, avatar } = req.body;
+
+    // Decode Google JWT Credential Token if provided by Google Identity Services SDK
+    if (credential) {
+      try {
+        const decoded = jwt.decode(credential);
+        if (decoded) {
+          googleId = decoded.sub || googleId;
+          email = decoded.email || email;
+          displayName = decoded.name || displayName;
+          avatar = decoded.picture || avatar;
+        }
+      } catch (err) {
+        console.error('Error decoding credential JWT:', err);
+      }
+    }
 
     if (!email && !googleId) {
       return res.status(400).json({ message: 'Invalid Google user data' });

@@ -6,10 +6,12 @@ class AuthManager {
   constructor(onUserChanged) {
     this.onUserChanged = onUserChanged;
     this.selectedAvatar = 'icons/clean_avatar_boy.png?v=6';
+    this.googleClientId = '';
 
     this.initElements();
     this.bindEvents();
     this.checkAuthState();
+    this.initGoogleAuth();
   }
 
   initElements() {
@@ -575,13 +577,67 @@ class AuthManager {
     if (this.userNameDisplay) this.userNameDisplay.textContent = user.displayName || user.username;
   }
 
+  async initGoogleAuth() {
+    try {
+      const config = await ApiClient.getConfig();
+      this.googleClientId = config.googleClientId || window.GOOGLE_CLIENT_ID || '';
+
+      if (this.googleClientId && window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.initialize({
+          client_id: this.googleClientId,
+          callback: async (response) => {
+            if (response && response.credential) {
+              try {
+                const loginData = await ApiClient.loginWithGoogle({
+                  credential: response.credential
+                });
+                this.closeModal();
+                this.checkAuthState();
+                if (this.onUserChanged) this.onUserChanged(loginData.user);
+                alert(`เข้าสู่ระบบด้วย Google สำเร็จ!\nยินดีต้อนรับ ${loginData.user.displayName}`);
+              } catch (err) {
+                alert('เข้าสู่ระบบด้วย Google ไม่สำเร็จ: ' + err.message);
+              }
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Failed to initialize Google Auth:', e);
+    }
+  }
+
   async triggerGoogleLogin() {
+    // 1. If Google Client ID is configured and SDK is loaded
+    if (this.googleClientId && window.google && window.google.accounts && window.google.accounts.id) {
+      this.openGoogleOAuthPopup();
+      return;
+    }
+
+    // 2. Prompt user for Google OAuth Client ID or direct email fallback
+    const enterClientId = confirm(
+      "ระบบพร้อมรองรับ Google OAuth ล็อกอินภายนอก!\n\n" +
+      "กด OK เพื่อเปิดป๊อปอัปกรอก Google Client ID หรือทดสอบการล็อกอินด้วยอีเมล"
+    );
+
+    if (!enterClientId) return;
+
+    const inputClientId = prompt("กรุณากรอก Google Client ID ของคุณ (เช่น xxx.apps.googleusercontent.com):\n(หากเว้นว่าง จะเป็นการทดสอบล็อกอินด้วยอีเมล):");
+    if (inputClientId && inputClientId.includes(".apps.googleusercontent.com")) {
+      this.googleClientId = inputClientId.trim();
+      alert("บันทึก Google Client ID เรียบร้อยแล้ว! กำลังเปิดหน้าต่างล็อกอิน Google...");
+      this.initGoogleAuth();
+      this.openGoogleOAuthPopup();
+      return;
+    }
+
+    // Fallback: Test Google Email login
     let email = prompt('กรุณากรอกอีเมล Google ของคุณ (เช่น student@gmail.com):');
     if (!email) return;
 
     email = email.trim().toLowerCase();
     if (!email.includes('@')) {
-      alert('รูปแบบอีเมลไม่ถูกต้อง กรุณากรอกอีเมล เช่น name@gmail.com');
+      alert('รูปแบบอีเมลไม่ถูกต้อง');
       return;
     }
 
@@ -605,6 +661,42 @@ class AuthManager {
       alert(`เข้าสู่ระบบด้วย Google สำเร็จ!\nยินดีต้อนรับ ${loginData.user.displayName}`);
     } catch (err) {
       alert('เข้าสู่ระบบด้วย Google ไม่สำเร็จ: ' + err.message);
+    }
+  }
+
+  openGoogleOAuthPopup() {
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: this.googleClientId,
+        scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+        callback: async (tokenResponse) => {
+          if (tokenResponse && tokenResponse.access_token) {
+            try {
+              const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+              });
+              const profile = await userInfoRes.json();
+
+              const loginData = await ApiClient.loginWithGoogle({
+                googleId: profile.sub,
+                email: profile.email,
+                displayName: profile.name,
+                avatar: profile.picture
+              });
+
+              this.closeModal();
+              this.checkAuthState();
+              if (this.onUserChanged) this.onUserChanged(loginData.user);
+              alert(`เข้าสู่ระบบด้วย Google สำเร็จ!\nยินดีต้อนรับ ${loginData.user.displayName}`);
+            } catch (err) {
+              alert('เข้าสู่ระบบด้วย Google ไม่สำเร็จ: ' + err.message);
+            }
+          }
+        }
+      });
+      client.requestAccessToken();
+    } else if (window.google && window.google.accounts && window.google.accounts.id) {
+      window.google.accounts.id.prompt();
     }
   }
 
