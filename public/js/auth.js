@@ -608,60 +608,22 @@ class AuthManager {
   }
 
   async triggerGoogleLogin() {
-    // 1. If Google Client ID is configured and SDK is loaded
-    if (this.googleClientId && window.google && window.google.accounts && window.google.accounts.id) {
+    // If Google Client ID is configured
+    if (this.googleClientId) {
       this.openGoogleOAuthPopup();
       return;
     }
 
-    // 2. Prompt user for Google OAuth Client ID or direct email fallback
-    const enterClientId = confirm(
-      "ระบบพร้อมรองรับ Google OAuth ล็อกอินภายนอก!\n\n" +
-      "กด OK เพื่อเปิดป๊อปอัปกรอก Google Client ID หรือทดสอบการล็อกอินด้วยอีเมล"
+    // Show setup instruction alert if GOOGLE_CLIENT_ID is not configured in .env yet
+    alert(
+      "ยังไม่ได้ระบุ GOOGLE_CLIENT_ID ในไฟล์ .env\n\n" +
+      "วิธีสร้าง Google Client ID:\n" +
+      "1. เข้าไปยัง Google Cloud Console (console.cloud.google.com)\n" +
+      "2. ไปที่ Credentials -> Create Credentials -> OAuth client ID\n" +
+      "3. เลือก Web application\n" +
+      "4. คัดลอก Client ID นำมาใส่ในไฟล์ .env ตัวอย่างเช่น:\n" +
+      "   GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com"
     );
-
-    if (!enterClientId) return;
-
-    const inputClientId = prompt("กรุณากรอก Google Client ID ของคุณ (เช่น xxx.apps.googleusercontent.com):\n(หากเว้นว่าง จะเป็นการทดสอบล็อกอินด้วยอีเมล):");
-    if (inputClientId && inputClientId.includes(".apps.googleusercontent.com")) {
-      this.googleClientId = inputClientId.trim();
-      alert("บันทึก Google Client ID เรียบร้อยแล้ว! กำลังเปิดหน้าต่างล็อกอิน Google...");
-      this.initGoogleAuth();
-      this.openGoogleOAuthPopup();
-      return;
-    }
-
-    // Fallback: Test Google Email login
-    let email = prompt('กรุณากรอกอีเมล Google ของคุณ (เช่น student@gmail.com):');
-    if (!email) return;
-
-    email = email.trim().toLowerCase();
-    if (!email.includes('@')) {
-      alert('รูปแบบอีเมลไม่ถูกต้อง');
-      return;
-    }
-
-    const defaultName = email.split('@')[0];
-    const displayName = prompt(`ระบุชื่อแสดงผลสำหรับบัญชี Google นี้ (${defaultName}):`, defaultName) || defaultName;
-    const googleId = 'google_' + btoa(email).replace(/=/g, '');
-    const avatar = 'icons/clean_avatar_boy.png?v=8';
-
-    try {
-      const loginData = await ApiClient.loginWithGoogle({
-        googleId,
-        email,
-        displayName,
-        avatar
-      });
-
-      this.closeModal();
-      this.checkAuthState();
-      if (this.onUserChanged) this.onUserChanged(loginData.user);
-
-      alert(`เข้าสู่ระบบด้วย Google สำเร็จ!\nยินดีต้อนรับ ${loginData.user.displayName}`);
-    } catch (err) {
-      alert('เข้าสู่ระบบด้วย Google ไม่สำเร็จ: ' + err.message);
-    }
   }
 
   openGoogleOAuthPopup() {
@@ -695,8 +657,8 @@ class AuthManager {
         }
       });
       client.requestAccessToken();
-    } else if (window.google && window.google.accounts && window.google.accounts.id) {
-      window.google.accounts.id.prompt();
+    } else {
+      alert('ระบบ Google SDK ยังโหลดไม่เสร็จสิ้น กรุณาลองใหม่อีกครั้ง');
     }
   }
 
