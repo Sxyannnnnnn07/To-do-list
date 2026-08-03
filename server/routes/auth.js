@@ -49,14 +49,31 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     
-    const user = await User.findOne({ username: username.toLowerCase() });
+    let user = await User.findOne({ username: username.toLowerCase() });
+    
+    // Auto-create Demo user if missing
+    if (!user && username.toLowerCase() === 'demo') {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password || 'demo123', salt);
+      user = new User({
+        username: 'demo',
+        displayName: 'Demo User',
+        password: hashedPassword,
+        avatar: 'icons/clean_avatar_boy.png?v=8'
+      });
+      await user.save();
+    }
+
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    // Allow Demo User to log in with ANY password!
+    if (username.toLowerCase() !== 'demo') {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
     }
 
     const payload = { userId: user._id };

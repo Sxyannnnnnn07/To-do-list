@@ -437,7 +437,9 @@ class AuthManager {
         const username = card.dataset.username;
         let password = ApiClient.getSavedPassword(username);
 
-        if (!password) {
+        if (!password && username === 'demo') {
+          password = 'demo123';
+        } else if (!password) {
           password = prompt(`กรุณากรอกรหัสผ่านสำหรับ ${username}:`);
         }
 
@@ -489,12 +491,10 @@ class AuthManager {
         // Check for saved password first for instant passwordless switching
         let password = ApiClient.getSavedPassword(username);
 
-        // If not saved yet, prompt for password once
-        if (!password) {
-          const promptMsg = username === 'demo'
-            ? `กรุณากรอกรหัสผ่านสำหรับ Demo User (รหัสผ่านเดโมคือ: demo123):`
-            : `กรุณากรอกรหัสผ่านสำหรับ ${username}:`;
-          password = prompt(promptMsg);
+        if (!password && username === 'demo') {
+          password = 'demo123';
+        } else if (!password) {
+          password = prompt(`กรุณากรอกรหัสผ่านสำหรับ ${username}:`);
         }
 
         if (password) {
