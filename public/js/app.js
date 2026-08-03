@@ -51,7 +51,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const taskIdInput = document.getElementById('taskId');
   const taskSubjectSelect = document.getElementById('taskSubject');
-  const customSubjectInput = document.getElementById('customSubjectInput');
   const taskTitleInput = document.getElementById('taskTitle');
   const taskDetailInput = document.getElementById('taskDetail');
   const taskDueDateInput = document.getElementById('taskDueDate');
@@ -121,20 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderTasks();
   });
 
-  const subjectInputGroupEl = document.getElementById('subjectInputGroup');
 
-  // Subject Select Custom & Edit Option Toggle
-  taskSubjectSelect.addEventListener('change', (e) => {
-    const val = e.target.value;
-    if (val) {
-      subjectInputGroupEl.classList.remove('hidden');
-      customSubjectInput.value = val === 'custom' ? '' : val;
-      customSubjectInput.focus();
-    } else {
-      subjectInputGroupEl.classList.add('hidden');
-      customSubjectInput.value = '';
-    }
-  });
 
   // Open Modal - Add Mode
   openAddModalBtnEl.addEventListener('click', () => {
@@ -149,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     if (!currentUser) return;
 
-    let selectedSubject = customSubjectInput.value.trim() || taskSubjectSelect.value || 'ทั่วไป';
+    let selectedSubject = taskSubjectSelect.value || 'ทั่วไป/อื่นๆ';
 
     const priorityInput = document.querySelector('input[name="taskPriority"]:checked');
 
@@ -193,25 +179,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     taskIdInput.value = '';
     taskFormEl.reset();
     setTodayDefaultDate();
-    subjectInputGroupEl.classList.add('hidden');
-    customSubjectInput.value = '';
     taskModalEl.classList.add('active');
   }
 
   function openModalForEdit(task) {
     modalTitleEl.textContent = 'แก้ไขงานการบ้าน';
     taskIdInput.value = task._id || task.id;
-    
-    // Fill customSubjectInput with task subject and show it
-    subjectInputGroupEl.classList.remove('hidden');
-    customSubjectInput.value = task.subject;
-
-    const standardSubjects = ['คณิตศาสตร์', 'วิทยาศาสตร์', 'ภาษาอังกฤษ', 'ภาษาไทย', 'สังคมศึกษา', 'คอมพิวเตอร์', 'ศิลปะ/ดนตรี'];
-    if (standardSubjects.includes(task.subject)) {
-      taskSubjectSelect.value = task.subject;
-    } else {
-      taskSubjectSelect.value = 'custom';
-    }
+    taskSubjectSelect.value = task.subject || 'ทั่วไป/อื่นๆ';
 
     taskTitleInput.value = task.title;
     taskDetailInput.value = task.detail || '';
