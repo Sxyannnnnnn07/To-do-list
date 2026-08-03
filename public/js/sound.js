@@ -121,6 +121,50 @@ class SoundEngine {
     osc.start(now);
     osc.stop(now + 0.12);
   }
+
+  // 4. Cute Minimalist Tap Sound (Cute soft bloop for UI buttons, tabs, profile clicks)
+  playTapSound() {
+    if (!this.enabled) return;
+    this.initContext();
+    if (!this.audioCtx) return;
+
+    const now = this.audioCtx.currentTime;
+    const osc = this.audioCtx.createOscillator();
+    const gain = this.audioCtx.createGain();
+
+    osc.type = 'sine';
+    // Frequency sweeps quickly from 560Hz to 840Hz (cute bloop)
+    osc.frequency.setValueAtTime(560, now);
+    osc.frequency.exponentialRampToValueAtTime(840, now + 0.045);
+
+    gain.gain.setValueAtTime(0.09, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+    osc.connect(gain);
+    gain.connect(this.audioCtx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.045);
+  }
 }
 
 window.soundEngine = new SoundEngine();
+
+// Automatic Global Minimalist UI Tap Sound Listener
+// Plays cute tap sound on buttons, tabs, profile, chips, cards (EXCEPT input/textarea fields)
+document.addEventListener('click', (e) => {
+  const target = e.target;
+  if (!target) return;
+
+  const tagName = target.tagName ? target.tagName.toUpperCase() : '';
+  if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || target.isContentEditable) {
+    return; // Quiet when tapping input fields to type
+  }
+
+  // Check if click target or parent is an interactive UI element
+  const interactiveEl = target.closest('button, .btn, .user-profile-btn, .user-card, .filter-tab, .filter-btn, .filter-chip, .landing-tab, .avatar-picker-item, .task-card, .close-btn, .priority-radio, .btn-edit-name, .avatar-camera-badge, .stat-item, [role="button"]');
+
+  if (interactiveEl && window.soundEngine) {
+    window.soundEngine.playTapSound();
+  }
+}, true);

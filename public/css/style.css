@@ -379,15 +379,16 @@ body {
 }
 
 .progress-percentage {
-  font-size: 3.5rem;
-  font-weight: 900;
-  letter-spacing: -1.5px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
   background: linear-gradient(135deg, #34D399 0%, #A7F3D0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-  line-height: 0.95;
-  text-shadow: 0 4px 20px rgba(52, 211, 153, 0.4);
+  line-height: 1;
+  text-shadow: 0 2px 10px rgba(52, 211, 153, 0.3);
+  align-self: flex-end;
 }
 
 .progress-bar-bg {
