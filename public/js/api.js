@@ -138,17 +138,19 @@ class ApiClient {
     return this._fetch('/auth/me');
   }
 
-  static async updateProfile(avatar) {
+  static async updateProfile(profileData) {
+    const payload = typeof profileData === 'string' ? { avatar: profileData } : profileData;
     const res = await this._fetch('/auth/profile', {
       method: 'PUT',
-      body: JSON.stringify({ avatar })
+      body: JSON.stringify(payload)
     });
     this.setCurrentUser(res);
     
-    // Sync updated avatar locally
+    // Sync updated profile locally
     const accounts = this.getSavedAccounts();
     if (accounts[res.username.toLowerCase()]) {
       accounts[res.username.toLowerCase()].avatar = res.avatar;
+      accounts[res.username.toLowerCase()].displayName = res.displayName;
       localStorage.setItem('todo_saved_accounts', JSON.stringify(accounts));
     }
     return res;

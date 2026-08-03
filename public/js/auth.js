@@ -245,6 +245,25 @@ class AuthManager {
     document.getElementById('profileName').textContent = currentUser.displayName || currentUser.username;
     document.getElementById('profileUsername').textContent = '@' + currentUser.username;
 
+    // Edit Display Name handler
+    const editDisplayNameBtn = document.getElementById('editDisplayNameBtn');
+    if (editDisplayNameBtn) {
+      editDisplayNameBtn.onclick = async () => {
+        const currentName = currentUser.displayName || currentUser.username;
+        const newName = prompt('แก้ไขชื่อแสดงผลของคุณ:', currentName);
+        if (newName !== null && newName.trim() && newName.trim() !== currentName) {
+          try {
+            const updated = await ApiClient.updateProfile({ displayName: newName.trim() });
+            this.updateUserUI(updated);
+            if (this.onUserChanged) this.onUserChanged(updated);
+            document.getElementById('profileName').textContent = updated.displayName;
+          } catch (err) {
+            alert('ไม่สามารถแก้ไขชื่อแสดงผลได้: ' + err.message);
+          }
+        }
+      };
+    }
+
     // Task Stats
     let tasks = [];
     try {

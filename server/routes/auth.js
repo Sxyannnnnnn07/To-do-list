@@ -270,10 +270,14 @@ router.put('/link-email', auth, async (req, res) => {
 // PUT /profile
 router.put('/profile', auth, async (req, res) => {
   try {
-    const { avatar } = req.body;
+    const { avatar, displayName } = req.body;
+    const updateData = {};
+    if (avatar) updateData.avatar = avatar;
+    if (displayName && displayName.trim()) updateData.displayName = displayName.trim();
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { avatar },
+      updateData,
       { new: true }
     ).select('-password');
     

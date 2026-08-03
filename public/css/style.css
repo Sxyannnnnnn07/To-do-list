@@ -1204,6 +1204,62 @@ body {
   gap: 12px;
 }
 
+.auth-action-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.auth-action-row .btn-sm-action {
+  flex: 1;
+  font-size: 0.8rem;
+  padding: 8px 6px;
+  white-space: nowrap;
+  text-align: center;
+  justify-content: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-edit-name {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.btn-edit-name:hover {
+  background: var(--color-brand, #6366f1);
+  border-color: var(--color-brand, #6366f1);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.profile-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: 'Prompt', sans-serif;
+}
+
 .avatar-selector {
   display: flex;
   gap: 12px;
