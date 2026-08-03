@@ -17,7 +17,18 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tasks', require('./routes/tasks'));
 
-// Serve static files
+// Serve static files — disable cache for JS/CSS/HTML to fix Safari iOS stale cache
+app.use((req, res, next) => {
+  const ext = path.extname(req.path);
+  if (['.js', '.css', '.html'].includes(ext)) {
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+  }
+  next();
+});
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Fall back to index.html
