@@ -46,22 +46,17 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   
-  // Create default demo user if no users exist
+  // One-time cleanup: Remove demo user if it exists
   try {
     const User = require('./models/User');
-    const bcrypt = require('bcryptjs');
-    const count = await User.countDocuments();
-    if (count === 0) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('demo123', salt);
-      await User.create({
-        username: 'demo',
-        displayName: 'Demo User',
-        password: hashedPassword
-      });
-      console.log('Created default demo user (demo/demo123)');
+    const Task = require('./models/Task');
+    const demoUser = await User.findOne({ username: 'demo' });
+    if (demoUser) {
+      await Task.deleteMany({ user: demoUser._id });
+      await User.deleteOne({ _id: demoUser._id });
+      console.log('Demo user and their tasks removed successfully.');
     }
   } catch (error) {
-    console.error('Error creating demo user:', error.message);
+    console.error('Error removing demo user:', error.message);
   }
 });
