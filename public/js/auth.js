@@ -494,8 +494,7 @@ class AuthManager {
             // Auto switch to remaining available user or reload
             const users = await ApiClient.getUsers();
             if (users.length > 0) {
-              const autoUser = users[0];
-              const pwd = ApiClient.getSavedPassword(autoUser.username) || 'demo123';
+              const pwd = ApiClient.getSavedPassword(autoUser.username);
               try {
                 const loginData = await ApiClient.login(autoUser.username, pwd);
                 this.updateUserUI(loginData.user);
@@ -544,9 +543,7 @@ class AuthManager {
         const username = card.dataset.username;
         let password = ApiClient.getSavedPassword(username);
 
-        if (!password && username === 'demo') {
-          password = 'demo123';
-        } else if (!password) {
+        if (!password) {
           password = prompt(`กรุณากรอกรหัสผ่านสำหรับ ${username}:`);
         }
 
@@ -598,9 +595,7 @@ class AuthManager {
         // Check for saved password first for instant passwordless switching
         let password = ApiClient.getSavedPassword(username);
 
-        if (!password && username === 'demo') {
-          password = 'demo123';
-        } else if (!password) {
+        if (!password) {
           password = prompt(`กรุณากรอกรหัสผ่านสำหรับ ${username}:`);
         }
 

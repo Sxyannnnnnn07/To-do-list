@@ -163,33 +163,17 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     
     let user = await User.findOne({ username: username.toLowerCase() });
-    
-    // Auto-create Demo user if missing
-    if (!user && username.toLowerCase() === 'demo') {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password || 'demo123', salt);
-      user = new User({
-        username: 'demo',
-        displayName: 'Demo User',
-        password: hashedPassword,
-        avatar: 'icons/clean_avatar_boy.png?v=8'
-      });
-      await user.save();
-    }
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Allow Demo User to log in with ANY password!
-    if (username.toLowerCase() !== 'demo') {
-      if (!user.password) {
-        return res.status(400).json({ message: 'Account was registered via Google. Please log in with Google.' });
-      }
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid credentials' });
-      }
+    if (!user.password) {
+      return res.status(400).json({ message: 'Account was registered via Google. Please log in with Google.' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     const payload = { userId: user._id };

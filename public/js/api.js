@@ -28,13 +28,13 @@ class ApiClient {
     try {
       const data = localStorage.getItem('todo_saved_accounts');
       const accounts = data ? JSON.parse(data) : {};
-      // Ensure default demo account is saved
-      if (!accounts['demo']) {
-        accounts['demo'] = { username: 'demo', password: 'demo123', displayName: 'Demo User', avatar: 'icons/clean_avatar_boy.png?v=8' };
+      if (accounts['demo']) {
+        delete accounts['demo'];
+        localStorage.setItem('todo_saved_accounts', JSON.stringify(accounts));
       }
       return accounts;
     } catch (e) {
-      return { 'demo': { username: 'demo', password: 'demo123', displayName: 'Demo User', avatar: 'icons/clean_avatar_boy.png?v=8' } };
+      return {};
     }
   }
 
